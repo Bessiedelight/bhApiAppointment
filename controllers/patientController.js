@@ -71,3 +71,24 @@ exports.viewBookings = async (req, res) => {
     res.status(500).json({ message: 'Error fetching bookings', error });
   }
 };
+
+// Approve an appointment
+exports.approveAppointment = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const appointment = await Appointment.findByIdAndUpdate(
+      id,
+      { acceptedSlot: 'yes' },
+      { new: true } // Return the updated document
+    );
+
+    if (!appointment) {
+      return res.status(404).json({ message: 'Appointment not found' });
+    }
+
+    res.status(200).json({ message: 'Appointment approved successfully', appointment });
+  } catch (error) {
+    res.status(500).json({ message: 'Error approving appointment', error });
+  }
+};
