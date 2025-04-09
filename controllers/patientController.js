@@ -92,3 +92,12 @@ exports.approveAppointment = async (req, res) => {
     res.status(500).json({ message: 'Error approving appointment', error });
   }
 };
+
+exports.getAllAppointments = async (req, res) => {
+  try {
+    const appointments = await Appointment.find({});
+    res.status(200).json(appointments);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching all appointments', error });
+  }
+};

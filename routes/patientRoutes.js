@@ -6,6 +6,7 @@ router.get('/available-slots', patientController.getAvailableSlots);
 router.post('/book-appointment', patientController.bookAppointment);
 router.get('/my-bookings', patientController.viewBookings);
 router.patch('/appointments/:id/approve', patientController.approveAppointment);
+router.get('/book-appointment', patientController.getAllAppointments);
 
 
 module.exports = router;
