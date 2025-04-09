@@ -65,11 +65,41 @@ exports.viewAppointments = async (req, res) => {
   }
 };
 
+// Get all doctors with reformatted availability (excluding booked slots)
 exports.getAllDoctors = async (req, res) => {
-    try {
-      const doctors = await Doctor.find({});
-      res.status(200).json(doctors);
-    } catch (error) {
-      res.status(500).json({ message: 'Error fetching doctors and slots', error });
-    }
-  };
+  try {
+    const doctors = await Doctor.find({});
+
+    // Transform each doctor into the required format
+    const result = doctors.map(doc => {
+      // Map over each availability entry
+      const slotsdetails = doc.availability.map(avail => {
+        // Format the date as YYYY-MM-DD
+        const dateStr = avail.date.toISOString().split('T')[0];
+
+        // Filter out slots that are already booked
+        const availableSlots = avail.slots.filter(slot => !slot.booked);
+        let slotsStr;
+
+        if (availableSlots.length === 0) {
+          slotsStr = "[No slots available]";
+        } else {
+          // Build string for each available slot, marking them as "available"
+          slotsStr = '[' + availableSlots.map(slot => `${slot.start}-${slot.end} (available)`).join(', ') + ']';
+        }
+
+        return `Availability on ${dateStr}: ${slotsStr}`;
+      }).join('; ');
+
+      return {
+        doctorname: doc.name,
+        doctoremail: doc.gmail,
+        slotsdetails: slotsdetails,
+      };
+    });
+
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching doctors and slots', error });
+  }
+};
