@@ -6,13 +6,11 @@ exports.getAvailableSlots = async (req, res) => {
   const { doctorGmail, date, patientHospitalId } = req.query;
 
   try {
-    let doctor;
-    if (patientHospitalId) {
-      doctor = await Doctor.findOne({ patientHospitalId });
-    } else {
-      doctor = await Doctor.findOne({ gmail: doctorGmail });
-    }
-    if (!doctor) return res.status(404).json({ message: 'Doctor not found' });
+    const doctor = await Doctor.findOne({ 
+      gmail: doctorGmail,
+      patients: patientHospitalId 
+    });
+    if (!doctor) return res.status(404).json({ message: 'Doctor not found or patient not registered' });
 
     const availability = doctor.availability.find(
       (avail) => avail.date.toISOString().split('T')[0] === new Date(date).toISOString().split('T')[0]
