@@ -3,10 +3,15 @@ const Appointment = require('../models/appointmentModel');
 
 // Get available slots for a doctor on a date
 exports.getAvailableSlots = async (req, res) => {
-  const { doctorGmail, date } = req.query;
+  const { doctorGmail, date, hospitalpatientId } = req.query;
 
   try {
-    const doctor = await Doctor.findOne({ gmail: doctorGmail });
+    let doctor;
+    if (hospitalpatientId) {
+      doctor = await Doctor.findOne({ hospitalpatientId });
+    } else {
+      doctor = await Doctor.findOne({ gmail: doctorGmail });
+    }
     if (!doctor) return res.status(404).json({ message: 'Doctor not found' });
 
     const availability = doctor.availability.find(
